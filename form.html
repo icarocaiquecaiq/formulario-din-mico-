@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="form.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+    <title>listagem</title>
+</head>
+
+<script>
+
+    var registroSelecionado = -1
+
+    $(function () {
+
+        
+        $(document).on('click','#btnEditar' ,function () { // assinar evento de click 
+            
+            var posicao = $(this).attr('alt') // registrar posição de cada button 
+            
+            var estoqueStorage = JSON.parse(localStorage.getItem('stoqx')) // recuperar dados do local storage
+            
+            var static = (estoqueStorage[posicao]) // achar a posição e valor especifico(dado preciso do registro)
+
+            $('#item').val(static.item)
+            $('#entrada').val(static.entrada)   // visao usuário: dados setados nos campos respectivos por referência  
+            $('#saida').val(static.saida)
+            $('#estoque').val(static.estoque)
+
+            // em vez de substituir o dado está adicionando no registro. PARA ISSO: //
+
+            // criamos uma variável(registroSelecionado) para assumir o valor da posição. //
+
+            // com o valor da posição, buscamos no LocalStorage a ARRAY em que o valor está inserido, cujo esse, substituirá o valor dos campos//
+
+
+            registroSelecionado = posicao
+            
+
+        })
+        
+        $(document).on('click','#btnExcluir' ,function () { 
+
+            var posicao = $(this).attr('alt')
+
+            var estoqueStorage = JSON.parse(localStorage.getItem('stoqx'))
+
+            var static = (estoqueStorage[posicao])
+
+            estoqueStorage.splice(posicao,1) 
+            
+            // o splice possibilita  excluir pela: ('posição' + quantidade) 
+            // a posicao é excluída, mas é imperceptivel. somente atribuido o resultado de volta no LocalStorage.//
+
+            localStorage.setItem("stoqx",JSON.stringify(estoqueStorage)) // ??
+
+            dolist() // executamos o carregamento de novo da lista. apartir de agorra, visualmente ela está atualizada. 
+
+           // start to debug  
+
+        })
+        
+       dolist()
+
+        $('#enviar').click(function () {
+            
+            var objeto = {
+                item: $("#item").val(),
+                entrada: $("#entrada").val(),
+                saida: $("#saida").val(),
+                estoque: $("#estoque").val()
+
+           
+            }
+
+            var estoqueStorage = JSON.parse(localStorage.getItem('stoqx')) 
+            
+            if (estoqueStorage == null) {
+                estoqueStorage=[]
+            }
+
+            if (registroSelecionado > -1) {
+
+                estoqueStorage [registroSelecionado] = {
+                
+                item: $("#item").val(),
+                entrada: $("#entrada").val(),
+                saida: $("#saida").val(),
+                estoque: $("#estoque").val() 
+
+                }
+
+            } 
+
+            else {
+
+                estoqueStorage.push(objeto)
+
+            }
+
+            localStorage.setItem("stoqx",JSON.stringify(estoqueStorage))
+
+            $('input').val('')
+            $('#item').focus()
+            
+
+            dolist()
+
+            registroSelecionado = - 1
+
+        }) 
+
+    function dolist() {
+
+        $('#list tr:not(:first)').remove()
+
+        var estoqueStorage = JSON.parse(localStorage.getItem('stoqx'))
+
+
+        for (var posicao in estoqueStorage) {
+
+            var static = (estoqueStorage[posicao])
+
+            var botaoExcluir= '<button id= "btnExcluir" alt="' + posicao +'" class="btn btn-danger btn-sm">excluir</button>'
+
+            var botaoeditar= '<button id= "btnEditar" alt="' + posicao +'" class="btn btn-info btn-sm">editar</button>'
+
+            var acoes= ('<td>' + botaoeditar + botaoExcluir +'</td>')
+
+            var listar = '<tr><td>' + static.item + '</td><td>' + static.entrada + '</td><td>' + static.saida + '</td><td>' + static.estoque + acoes + '</td></tr>'
+            $('#list tr:last').after( listar )
+
+            
+
+        }
+
+       
+    }
+
+           
+          
+        
+          
+
+
+    })
+</script>
+
+
+
+<body>
+
+    <div class="container-fluid">
+        <div class=" text-center">
+            <h1 class="titulo"> STOQX </h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-primary">
+                <div class="text-center">
+                <h2 id="titulo2">seu estoque</h2>
+                </div>            
+                
+                <div class="panel-body">
+                    <div  class=" col-lg-3 col-md-6 col-sm-4 col-xs-12">
+                        <label for="item">item</label>
+                        <input id="item" type="text" class="form-control"  maxlength="20" placeholder="ex: tesouras,canetas">
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-4 col-xs-12 ">
+                        <label for="entrada">entrada</label>
+                        <input id="entrada" type="text"  class="form-control" maxlength="13" placeholder="nº de entrada:">
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-4 col-xs-12">
+                        <label for="saida">saída</label>
+                        <input id="saida" type="text"  class="form-control"  maxlength="13" placeholder="nº de saída:">
+                    </div>                
+                    <div class="col-lg-2 col-md-6 col-sm-3 col-xs-12 ">
+                        <label for="estoque">estoque</label>
+                        <input id="estoque" type="text"  class="form-control"  maxlength="13" placeholder="estoque geral:">
+                    </div>                  
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12 ">
+                        <br>                    
+                        <button  id="enviar" class=" btn btn-primary" type="button">enviar</button>
+                    </div>
+                    <br/>
+                </div>      
+            </div>
+            <br>           
+            <table id="list" class= "table table-striped table-responsive table-hover">
+                <tbody>
+                    <th>ITEM</th>
+                    <th>ENTRADA</th>
+                    <th>SAÍDA</th>
+                    <th>ESTOQUE</th>
+                    <th>AÇÕES</th>
+                </tbody>
+            </table>                      
+        </div>
+    </div>
+
+</body>
+</html>
